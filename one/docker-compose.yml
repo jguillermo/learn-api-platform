@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  php:
+    image: php8.1:learn
+    ports:
+      - "8080:80"
+    volumes:
+      - ~/.composer:/root/.composer:rw
+      - ./:/var/www:rw
