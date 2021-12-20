@@ -24,6 +24,18 @@ services:
       - ./:/appdata/www
       - ./../docker/php746/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - ~/.ssh/id_rsa:/home/appuser/.ssh/id_rsa
+    depends_on:
+      - mongo
+    networks:
+      - learn-network
+
+
+  mongo:
+    image: mongo:5.0
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
     networks:
       - learn-network
 
