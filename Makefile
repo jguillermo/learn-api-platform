@@ -2,19 +2,20 @@
 ## GENERAL ##
 
 export PROJET_FOLDER= one
-export U_ID := $(shell id -u)
+OS := $(shell uname)
 
-update-composer:
-	cd user && ./all-composer-update.sh ${PROJET_FOLDER}
+ifeq ($(OS),Darwin)
+	UID = $(shell id -u)
+else ifeq ($(OS),Linux)
+	UID = $(shell id -u)
+else
+	UID = 1000
+endif
 
-update-all:
-	cd user && ./update-all.sh
 
 behat-custom:
 	@docker-compose -f ${PROJET_FOLDER}/docker-compose.yml exec ${PROJET_FOLDER} composer behat features/Product/toggleStatus.feature
 	@docker-compose -f ${PROJET_FOLDER}/docker-compose.yml exec ${PROJET_FOLDER} composer behat features/Product/list_product.feature
-	
-
 
 test-prepare:
 	@docker compose -f ${PROJET_FOLDER}/docker-compose.yml exec ${PROJET_FOLDER} ./bin/console cache:clear
@@ -29,51 +30,28 @@ test:
 	docker compose -f ${PROJET_FOLDER}/docker-compose.yml exec ${PROJET_FOLDER} composer csf
 	docker compose -f ${PROJET_FOLDER}/docker-compose.yml exec ${PROJET_FOLDER} composer behat
 
-testbf:
-	@#export $$(cat application/.env | xargs)
-	docker compose -f ${PROJET_FOLDER}/docker-compose.yml exec ${PROJET_FOLDER} ./bin/console cache:clear
-	docker compose -f ${PROJET_FOLDER}/docker-compose.yml exec ${PROJET_FOLDER} composer csf
-	docker compose -f ${PROJET_FOLDER}/docker-compose.yml exec ${PROJET_FOLDER} composer behatbf
-
-tools:
-	docker compose -f ${PROJET_FOLDER}/docker-compose.yml exec ${PROJET_FOLDER} composer test
 
 up:
-	docker compose -f ${PROJET_FOLDER}/docker-compose.yml up
+	docker network create learn-network || true
+	U_ID=${UID} docker compose -f ${PROJET_FOLDER}/docker-compose.yml up
 
 down:
-	docker compose -f ${PROJET_FOLDER}/docker-compose.yml down
-
-restart:
-	cd user && ./restart.sh
-
-install:
-	./user/setup_dev_env.sh
+	U_ID=${UID} docker compose -f ${PROJET_FOLDER}/docker-compose.yml down
 
 log:
 	docker compose -f ${PROJET_FOLDER}/docker-compose.yml logs -f ${PROJET_FOLDER}
 	#tail -f ${PROJET_FOLDER}/framework/var/log/dev.log || true
 
-
-log-traefik:
-	@docker compose -f ${PROJET_FOLDER}/docker-compose.yml logs -f traefik
-
 ssh:
-	docker compose -f ${PROJET_FOLDER}/docker-compose.yml exec php bash
-
-container-ssh:
-	docker compose -f ${PROJET_FOLDER}/docker-compose.yml run --rm --entrypoint "bash -c" ${PROJET_FOLDER} bash
-
-ssh-user:
-	docker compose -f ${PROJET_FOLDER}/docker-compose.yml exec user bash
+	U_ID=${UID} docker compose -f ${PROJET_FOLDER}/docker-compose.yml exec --user ${UID} php bash
 
 ps:
 	@docker compose -f ${PROJET_FOLDER}/docker-compose.yml ps
 
 build:
 	@#docker builder prune
-	docker build --build-arg UID=${U_ID} -t learn:php746 docker/php746
-	docker build --build-arg UID=${U_ID} -t learn:nginx docker/nginx
+	docker build --build-arg UID=${UID} -t learn:php746 docker/php746
+	docker build --build-arg UID=${UID} -t learn:nginx docker/nginx
 
 docker-kill:
 	@make down
