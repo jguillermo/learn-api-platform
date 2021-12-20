@@ -52,6 +52,7 @@ build:
 	@#docker builder prune
 	docker build --build-arg UID=${UID} -t learn:php746 docker/php746
 	docker build --build-arg UID=${UID} -t learn:nginx docker/nginx
+	docker build --build-arg UID=${UID} -t learn:rabbitmq docker/rabbitmq
 
 docker-kill:
 	@make down

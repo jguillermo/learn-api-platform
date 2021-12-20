@@ -17,15 +17,13 @@ services:
     container_name: php
     image: learn:php746
     environment:
+      XDEBUG_CLIENT_HOST: 172.17.0.1
+      XDEBUG_CLIENT_PORT: 9003
       PHP_IDE_CONFIG: serverName=Docker
-      PHP_XDEBUG_ENABLED: 1
-      XDEBUG_CONFIG: remote_host=172.17.0.1 remote_port=9005
     volumes:
       - ./:/appdata/www
-      - ./../docker/php746/xdebug-linux.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./../docker/php746/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - ~/.ssh/id_rsa:/home/appuser/.ssh/id_rsa
-    depends_on:
-      - symfony-api-platform-db
     networks:
       - learn-network
 
