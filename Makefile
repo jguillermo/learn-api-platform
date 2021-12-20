@@ -2,6 +2,7 @@
 ## GENERAL ##
 
 export PROJET_FOLDER= one
+export U_ID := $(shell id -u)
 
 update-composer:
 	cd user && ./all-composer-update.sh ${PROJET_FOLDER}
@@ -70,9 +71,9 @@ ps:
 	@docker compose -f ${PROJET_FOLDER}/docker-compose.yml ps
 
 build:
-	docker builder prune
-	docker build -t php8.1:learn .
-
+	@#docker builder prune
+	docker build --build-arg UID=${U_ID} -t learn:php746 docker/php746
+	docker build --build-arg UID=${U_ID} -t learn:nginx docker/nginx
 
 docker-kill:
 	@make down
